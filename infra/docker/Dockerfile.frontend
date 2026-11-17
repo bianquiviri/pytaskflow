@@ -1,0 +1,13 @@
+# TaskFlow frontend image (Node 24). Dev compose runs the Vite dev server;
+# production deployments build with `npm run build` and serve dist/ via a
+# static server with SPA fallback.
+FROM node:24-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

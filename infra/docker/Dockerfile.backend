@@ -1,0 +1,19 @@
+# TaskFlow backend image (Python 3.13 slim). Dev compose runs manage.py runserver;
+# production deployments run: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+FROM python:3.13-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY pyproject.toml manage.py ./
+COPY config ./config
+COPY apps ./apps
+
+RUN pip install --no-cache-dir ".[dev]" && \
+    useradd --create-home appuser && chown -R appuser /app
+USER appuser
+
+EXPOSE 8000
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

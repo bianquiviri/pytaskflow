@@ -1,0 +1,17 @@
+# Mapping between TaskFlow OpenCode agents and GitHub users.
+# openCodeAgent names are NOT GitHub accounts. Issues are assigned to a GitHub
+# user ONLY when `githubAssignee` is a real, existing GitHub username.
+# Leave "" to keep issues unassigned (the agent:* label marks ownership).
+agents:
+  backend:
+    openCodeAgent: backend
+    githubAssignee: ""
+  frontend:
+    openCodeAgent: frontend
+    githubAssignee: ""
+  qa:
+    openCodeAgent: qa
+    githubAssignee: ""
+  sre:
+    openCodeAgent: sre
+    githubAssignee: ""

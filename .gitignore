@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+db.sqlite3
+*.pot
+*.mo
+
+# Node / frontend
+node_modules/
+frontend/dist/
+coverage/
+.vite/
+*.tsbuildinfo
+playwright-report/
+test-results/
+blob-report/
+.cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+infra/docker/*.local.env
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# OpenCode local state
+.opencode/cache/
+.opencode/*.local.*
