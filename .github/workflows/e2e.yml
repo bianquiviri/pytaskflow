@@ -39,6 +39,8 @@ jobs:
           sudo systemctl start postgresql.service
           sudo -u postgres psql -c "CREATE USER taskflow WITH PASSWORD 'taskflow-dev-password' CREATEDB;"
           sudo -u postgres psql -c "CREATE DATABASE taskflow OWNER taskflow;"
+          # config.settings.test points at test_<DB_NAME>; migrations/runserver need it.
+          sudo -u postgres psql -c "CREATE DATABASE test_taskflow OWNER taskflow;"
       - name: Apply migrations
         run: python backend/manage.py migrate --settings config.settings.test --noinput
       - name: Run backend API server
