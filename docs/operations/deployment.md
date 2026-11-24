@@ -26,6 +26,11 @@
 6. Logging: structured JSON on stdout (configured in prod settings); aggregate with your platform of choice.
 7. Never run `seed_data --clear` against production; the command refuses, but also exclude it from production images' documented runbook.
 
+### Rate limiting & cache
+
+- Auth rate limits are env-configurable per scope: `AUTH_THROTTLE_RATE` (default `10/min` — register, refresh, logout) and `LOGIN_THROTTLE_RATE` (default `5/min`, stricter — login). Exceeding a limit returns `429` with a `Retry-After` header; DRF's default body is used.
+- Throttle counters live in Django's `default` cache (`CACHES`, selected via `CACHE_BACKEND`/`CACHE_LOCATION`). **Production must use a shared cache** — e.g. `CACHE_BACKEND=django.core.cache.backends.db.DatabaseCache` (run `manage.py createcachetable`) or a Redis backend such as `django-redis` — because the default `LocMemCache` keeps counters per worker process (limits multiply by worker count and reset on restart).
+
 ## CI/CD
 
 GitHub Actions (`.github/workflows/`): backend (lint + tests with Postgres service), frontend (lint + typecheck + tests + build), e2e (compose stack + Playwright artifacts on failure). Workflows fail on any check failure.

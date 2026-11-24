@@ -10,8 +10,6 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from apps.core.throttling import AuthThrottleMixin
-
 from .serializers import (
     LoginSerializer,
     LogoutSerializer,
@@ -49,18 +47,22 @@ class RegisterView(APIView):
         )
 
 
-class LoginView(AuthThrottleMixin, TokenObtainPairView):
-    """Email/password login returning access + refresh tokens."""
+class LoginView(TokenObtainPairView):
+    """Email/password login returning access + refresh tokens.
+
+    Throttled through the global ``ScopedRateThrottle`` default via
+    ``throttle_scope`` (so test settings can disable it wholesale).
+    """
 
     serializer_class = LoginSerializer
-    throttle_scope = "auth"
+    throttle_scope = "login"  # dedicated, stricter scope (LOGIN_THROTTLE_RATE)
 
     @extend_schema(operation_id="auth_login", tags=["auth"], responses={200: LoginSerializer})
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
 
-class RefreshView(AuthThrottleMixin, TokenRefreshView):
+class RefreshView(TokenRefreshView):
     """Rotate the refresh token and return a new access token."""
 
     throttle_scope = "auth"

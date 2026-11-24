@@ -25,7 +25,10 @@ DATABASES = {
 
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
-# Loosen throttling for tests unless a test explicitly exercises it.
+# Throttling is OFF for the entire suite (TF-B06): DEFAULT_THROTTLE_CLASSES = ()
+# means DRF snapshots an empty throttle_classes at import, so no view is
+# throttled unless a test opts in by patching the snapshots — see the
+# `throttling_at` helper in tests/api/test_throttling.py.
 REST_FRAMEWORK = {**REST_FRAMEWORK, "DEFAULT_THROTTLE_CLASSES": ()}  # noqa: F405
 
 # Seeders must never run with production settings; tests use ENVIRONMENT=development.
