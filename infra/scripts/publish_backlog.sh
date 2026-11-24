@@ -83,7 +83,10 @@ for file in "$ISSUES_DIR"/*.md; do
   issue_id="$(awk -F': ' '/^id:/ {print $2; exit}' "$file" | tr -d '"')"
   title="$(awk -F': ' '/^title:/ {sub(/^title:[[:space:]]*/, ""); gsub(/^"|"$/, ""); print; exit}' "$file")"
   agent="$(awk -F': ' '/^agent:/ {print $2; exit}' "$file" | tr -d '"')"
-  mapfile -t labels < <(awk '/^labels:/ {
+  labels=()
+  while IFS= read -r l; do
+    [[ -n "$l" ]] && labels+=("$l")
+  done < <(awk '/^labels:/ {
       line=$0
       sub(/^labels:[[:space:]]*\[/, "", line)
       sub(/\].*$/, "", line)

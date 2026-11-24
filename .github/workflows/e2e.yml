@@ -39,20 +39,22 @@ jobs:
           sudo systemctl start postgresql.service
           sudo -u postgres psql -c "CREATE USER taskflow WITH PASSWORD 'taskflow-dev-password' CREATEDB;"
           sudo -u postgres psql -c "CREATE DATABASE taskflow OWNER taskflow;"
+          # config.settings.test points at test_<DB_NAME>; migrations/runserver need it.
+          sudo -u postgres psql -c "CREATE DATABASE test_taskflow OWNER taskflow;"
       - name: Apply migrations
         run: python backend/manage.py migrate --settings config.settings.test --noinput
       - name: Run backend API server
         run: |
           python backend/manage.py runserver 0.0.0.0:8000 --settings config.settings.test &
           echo $! > /tmp/backend.pid
-        # Wait for readiness
+        # Wait for readiness (DB-dependent; health stays green even if DB is down)
       - name: Wait for API
         run: |
           for i in $(seq 1 30); do
-            curl -fsS http://localhost:8000/api/v1/health/ && break
+            curl -fsS http://localhost:8000/api/v1/ready/ && break
             sleep 2
           done
-          curl -fsS http://localhost:8000/api/v1/health/
+          curl -fsS http://localhost:8000/api/v1/ready/
       - name: Run frontend dev server
         run: |
           npm run dev -- --host 0.0.0.0 --port 5173 &

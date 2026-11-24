@@ -37,14 +37,14 @@ backend/
 
 ### `apps.core`
 - `BaseSeedCommand` — shared management-command base: environment guard, count options, idempotency helpers, `--clear` handling. Used by `accounts` and `tasks` seeders.
-- Health endpoint: `GET /api/v1/health/` (public, no auth) returns `{"status": "ok"}` plus database reachability.
+- Health endpoints (public, no auth): `GET /api/v1/health/` liveness — static `{"status": "ok"}`, never touches the DB; `GET /api/v1/ready/` readiness — runs `SELECT 1` (2s hard timeout) and returns 200 `{"ready": true, ...}` or 503 `{"ready": false, "checks": {"database": false}}`.
 - `SmallResultsPagination` (default page size 20, `page_size` query param up to 100).
 
 ## API surface (`/api/v1/`)
 
 - `auth/register/`, `auth/login/`, `auth/refresh/`, `auth/logout/`, `auth/me/`
 - `tasks/` + `tasks/{id}/` (GET/PUT/PATCH/DELETE) — list supports `status`, `priority`, `search`, `ordering` filters.
-- `health/`
+- `health/` (liveness) and `ready/` (readiness)
 - OpenAPI: `/api/schema/` and Swagger UI `/api/docs/` (drf-spectacular).
 
 Authentication uses `SimpleJWT` bearer tokens: access token default 30 min, refresh 7 days (configurable via env). Refresh rotation enabled with blacklisting on logout.
