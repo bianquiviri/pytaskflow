@@ -81,6 +81,17 @@ DATABASES = {
     }
 }
 
+# --- Cache ---
+# Throttle counters live in the default cache. LocMem is dev-only: production
+# must select a shared backend via CACHE_BACKEND (see deployment docs), otherwise
+# rate limits are enforced per worker process instead of globally.
+CACHES = {
+    "default": {
+        "BACKEND": env("CACHE_BACKEND", default="django.core.cache.backends.locmem.LocMemCache"),
+        "LOCATION": env("CACHE_LOCATION", default="taskflow"),
+    }
+}
+
 # --- Auth ---
 AUTH_USER_MODEL = "accounts.User"
 AUTH_PASSWORD_VALIDATORS = [
@@ -103,7 +114,12 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_CLASSES": ("rest_framework.throttling.ScopedRateThrottle",),
-    "DEFAULT_THROTTLE_RATES": {"auth": "10/min"},
+    # Per-scope rates, sourced from the environment (TF-B06). Login is stricter
+    # than the other auth endpoints (register, refresh, logout → scope "auth").
+    "DEFAULT_THROTTLE_RATES": {
+        "auth": env("AUTH_THROTTLE_RATE", default="10/min"),
+        "login": env("LOGIN_THROTTLE_RATE", default="5/min"),
+    },
 }
 
 SIMPLE_JWT = {
